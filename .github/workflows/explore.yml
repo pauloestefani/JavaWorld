@@ -1,0 +1,45 @@
+name: explore
+on:
+  push:
+    branches: [explore]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - name: Probe releases and APIs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash probe/probe.sh 2>&1 | tee probe-out.txt
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Run JRE on Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -memory 4096
+          script: bash probe/emu.sh 2>&1 | tee emu-out.txt || true
+      - name: Save results
+        if: always()
+        run: |
+          mkdir -p out
+          cp probe-out.txt emu-out.txt out/ 2>/dev/null || true
+          git config user.name "probe-bot"
+          git config user.email "probe-bot@users.noreply.github.com"
+          git checkout --orphan explore-results
+          git rm -rf --cached . >/dev/null
+          git add -f out
+          git commit -m "probe results ${{ github.run_number }}"
+          git push -f origin explore-results
