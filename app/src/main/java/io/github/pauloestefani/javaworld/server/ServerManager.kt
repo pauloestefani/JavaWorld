@@ -183,16 +183,23 @@ class ServerManager(private val app: App) {
 
     private fun finish(code: Int) {
         val requested = stopRequested
+        val pid = _info.value.pid
+        val dir = _info.value.serverId?.let { app.repo.dir(it) }
         process = null
         writer = null
         val crashed = code != 0 && !requested
         if (_info.value.status != Status.PREPARING || requested) {
             appendLog(if (crashed) "✖ O servidor fechou com erro (código $code)" else "■ Servidor desligado", LogKind.SYSTEM)
         }
+        if (crashed) {
+            CrashInfo.explain(code)?.let { appendLog("✖ $it", LogKind.SYSTEM) }
+            CrashInfo.collect(pid, dir).forEach { appendLog("  $it", LogKind.SYSTEM) }
+        }
         setInfo {
             it.copy(
                 status = if (crashed) Status.CRASHED else Status.STOPPED,
-                error = if (crashed) "O servidor fechou com erro (código $code). Veja o console para detalhes." else null,
+                error = if (crashed) (CrashInfo.explain(code) ?: "O servidor fechou com erro (código $code).") +
+                    " Veja o console e use Compartilhar para mandar o erro." else null,
                 message = null, progress = null, pid = 0, players = emptyList(),
             )
         }
