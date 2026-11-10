@@ -26,7 +26,7 @@ object JavaLauncher {
     }
 
     fun process(paths: Paths, java: JavaHome, args: List<String>, workDir: File): ProcessBuilder {
-        val pb = ProcessBuilder(listOf(paths.launcher.path) + args)
+        val pb = ProcessBuilder(listOf(paths.launcher.path) + expandArgFiles(args, workDir))
             .directory(workDir)
             .redirectErrorStream(true)
         val env = pb.environment()
@@ -39,5 +39,48 @@ object JavaLauncher {
         env["TMPDIR"] = paths.tmp.path
         env["TERM"] = "dumb"
         return pb
+    }
+
+    /**
+     * O comando "java" normal expande os arquivos @argumentos (usados pelo Forge/NeoForge)
+     * antes de iniciar a JVM. Como chamamos a JVM direto, fazemos isso aqui.
+     */
+    fun expandArgFiles(args: List<String>, workDir: File): List<String> = args.flatMap { a ->
+        when {
+            a.startsWith("@@") -> listOf(a.substring(1))
+            a.startsWith("@") && a.length > 1 -> {
+                val f = File(a.substring(1)).let { if (it.isAbsolute) it else File(workDir, a.substring(1)) }
+                if (f.isFile) parseArgFile(f.readText()) else listOf(a)
+            }
+            else -> listOf(a)
+        }
+    }
+
+    /** Lê um arquivo de argumentos no formato do Java (espaços, aspas e comentários com #). */
+    fun parseArgFile(text: String): List<String> {
+        val out = mutableListOf<String>()
+        val cur = StringBuilder()
+        var inToken = false
+        var quote: Char? = null
+        var i = 0
+        while (i < text.length) {
+            val c = text[i]
+            when {
+                quote != null -> {
+                    if (c == quote) quote = null
+                    else if (c == '\\' && i + 1 < text.length) { i++; cur.append(text[i]) }
+                    else cur.append(c)
+                }
+                c == '"' || c == '\'' -> { quote = c; inToken = true }
+                c == '#' && !inToken -> { while (i < text.length && text[i] != '\n') i++ }
+                c.isWhitespace() -> {
+                    if (inToken) { out += cur.toString(); cur.clear(); inToken = false }
+                }
+                else -> { cur.append(c); inToken = true }
+            }
+            i++
+        }
+        if (inToken) out += cur.toString()
+        return out
     }
 }
