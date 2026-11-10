@@ -9,6 +9,7 @@
  * Variáveis de ambiente usadas:
  *   JW_LIBJLI  caminho do libjli.so do Java
  *   JW_LIBJVM  caminho do libjvm.so (opcional, pré-carrega)
+ *   JW_PRELOAD biblioteca para carregar antes de tudo (o libc++_shared.so do app)
  */
 #include <dlfcn.h>
 #include <malloc.h>
@@ -48,6 +49,10 @@ int main(int argc, char **argv) {
 
     const char *jli = getenv("JW_LIBJLI");
     const char *jvm = getenv("JW_LIBJVM");
+    const char *preload = getenv("JW_PRELOAD");
+    if (preload != NULL && preload[0] != '\0' && dlopen(preload, RTLD_NOW | RTLD_GLOBAL) == NULL) {
+        fprintf(stderr, "[launcher] aviso ao carregar %s: %s\n", preload, dlerror());
+    }
     if (jli == NULL) {
         fprintf(stderr, "[launcher] JW_LIBJLI não definido\n");
         return 90;

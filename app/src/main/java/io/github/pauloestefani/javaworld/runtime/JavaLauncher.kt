@@ -34,7 +34,10 @@ object JavaLauncher {
         env["JAVA_HOME"] = java.home.path
         env["JW_LIBJLI"] = java.libJli.path
         env["JW_LIBJVM"] = java.libJvm.path
-        env["LD_LIBRARY_PATH"] = java.ldLibraryPath + ":" + paths.nativeDir.path
+        env["LD_LIBRARY_PATH"] = java.ldLibraryPath(paths.nativeDir)
+        // Garante que o Java use o libc++ que vem no app, e não um do sistema/fabricante.
+        val cxx = File(paths.nativeDir, "libc++_shared.so")
+        if (cxx.exists()) env["JW_PRELOAD"] = cxx.path
         env["HOME"] = workDir.path
         env["TMPDIR"] = paths.tmp.path
         env["TERM"] = "dumb"

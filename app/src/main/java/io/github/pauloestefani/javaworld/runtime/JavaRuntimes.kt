@@ -13,14 +13,17 @@ import java.io.IOException
 import java.io.InputStream
 
 data class JavaHome(val major: Int, val home: File, val libJli: File, val libJvm: File) {
-    val ldLibraryPath: String
-        get() {
-            val jvmDir = libJvm.parentFile!!
-            val libDir = jvmDir.parentFile!!
-            val system = if (android.os.Process.is64Bit()) "/system/lib64:/vendor/lib64" else "/system/lib:/vendor/lib"
-            // A pasta do libjvm precisa vir primeiro, senão o launcher do Java tenta se reiniciar.
-            return listOf(jvmDir.path, File(libDir, "jli").path, libDir.path, system).joinToString(":")
-        }
+    /**
+     * A pasta do libjvm precisa vir primeiro, senão o launcher do Java tenta se reiniciar.
+     * As bibliotecas do app vêm antes das do sistema: alguns celulares (ex.: Xiaomi) têm um
+     * libc++_shared.so antigo em /vendor que não serve para o Java 25.
+     */
+    fun ldLibraryPath(nativeDir: File): String {
+        val jvmDir = libJvm.parentFile!!
+        val libDir = jvmDir.parentFile!!
+        val system = if (android.os.Process.is64Bit()) "/system/lib64" else "/system/lib"
+        return listOf(jvmDir.path, File(libDir, "jli").path, libDir.path, nativeDir.path, system).joinToString(":")
+    }
 }
 
 /**
