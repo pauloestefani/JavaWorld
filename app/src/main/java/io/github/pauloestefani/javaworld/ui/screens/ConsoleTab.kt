@@ -39,6 +39,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
@@ -81,11 +82,18 @@ fun ConsoleTab(profile: ServerProfile) {
         derivedStateOf {
             val info = listState.layoutInfo
             val last = info.visibleItemsInfo.lastOrNull()?.index ?: 0
-            last >= info.totalItemsCount - 3
+            info.totalItemsCount == 0 || last >= info.totalItemsCount - 2
         }
     }
-    LaunchedEffect(lines.size) {
-        if (lines.isNotEmpty() && atBottom) listState.scrollToItem(lines.size - 1)
+    // Segue o fim do log, a não ser que a pessoa role pra cima para ler.
+    var follow by remember { mutableStateOf(true) }
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.isScrollInProgress to atBottom }.collect { (scrolling, bottom) ->
+            if (!scrolling) follow = bottom else if (!bottom) follow = false
+        }
+    }
+    LaunchedEffect(lines.size, follow) {
+        if (lines.isNotEmpty() && follow) listState.scrollToItem(lines.size - 1)
     }
 
     fun send(cmd: String) {
@@ -121,9 +129,9 @@ fun ConsoleTab(profile: ServerProfile) {
                     Text(l.text, color = color, fontFamily = JW.Mono, fontSize = 11.5.sp, lineHeight = 15.sp)
                 }
             }
-            if (!atBottom && lines.isNotEmpty()) {
+            if (!follow && lines.isNotEmpty()) {
                 SmallFloatingActionButton(
-                    onClick = { scope.launch { listState.scrollToItem(lines.size - 1) } },
+                    onClick = { follow = true; scope.launch { listState.scrollToItem(lines.size - 1) } },
                     modifier = Modifier.align(Alignment.BottomEnd).padding(10.dp),
                 ) { Icon(Icons.Rounded.KeyboardDoubleArrowDown, "Ir para o fim") }
             }

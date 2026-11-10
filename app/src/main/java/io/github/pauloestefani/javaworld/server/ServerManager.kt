@@ -93,9 +93,10 @@ class ServerManager(private val app: App) {
     }
 
     private fun setInfo(transform: (RunInfo) -> RunInfo) {
+        val before = _info.value.status
         _info.update(transform)
         val i = _info.value
-        Log.i(TAG, "status=${i.status} msg=${i.message ?: ""} players=${i.players.size}")
+        if (i.status != before) Log.i(TAG, "status=${i.status} msg=${i.message ?: ""}")
     }
 
     fun start(id: String) {
