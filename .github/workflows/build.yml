@@ -7,6 +7,10 @@ on:
       - '**.md'
       - 'tunel/**'
   workflow_dispatch:
+    inputs:
+      tests:
+        description: 'Testes (all, ou ex: "forge" / "vanilla fabric")'
+        default: all
 
 permissions:
   contents: write
@@ -89,7 +93,7 @@ jobs:
           ram-size: 4096M
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -cores 4
-          script: bash scripts/ci-test.sh
+          script: TESTS="${{ inputs.tests || 'all' }}" bash scripts/ci-test.sh
 
       - name: Guardar resultados
         if: always()
@@ -109,6 +113,7 @@ jobs:
 
   release:
     needs: [build, test]
+    if: ${{ github.event_name == 'push' || inputs.tests == 'all' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4

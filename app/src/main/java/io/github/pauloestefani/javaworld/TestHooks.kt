@@ -58,6 +58,9 @@ class TestHooks : BroadcastReceiver() {
                         Log.i(TAG, "mod installed: $files")
                     }
                     "route" -> Nav.request(intent.getStringExtra("route").orEmpty())
+                    "dumplog" -> app.servers.log.value.takeLast(intent.getIntExtra("lines", 150)).forEach {
+                        Log.i("JavaWorldConsole", it.text)
+                    }
                 }
             } catch (e: Throwable) {
                 Log.e(TAG, "cmd $cmd failed", e)

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -21,6 +22,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Send
 import androidx.compose.material.icons.rounded.KeyboardDoubleArrowDown
+import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.FilledIconButton
@@ -42,6 +44,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import android.content.Intent
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -76,6 +80,7 @@ fun ConsoleTab(profile: ServerProfile) {
     var input by remember { mutableStateOf("") }
     var ask by remember { mutableStateOf<Quick?>(null) }
     val listState = rememberLazyListState()
+    val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
     val atBottom by remember {
@@ -87,13 +92,20 @@ fun ConsoleTab(profile: ServerProfile) {
     }
     // Segue o fim do log, a não ser que a pessoa role pra cima para ler.
     var follow by remember { mutableStateOf(true) }
+    var autoScrolling by remember { mutableStateOf(false) }
     LaunchedEffect(listState) {
-        snapshotFlow { listState.isScrollInProgress to atBottom }.collect { (scrolling, bottom) ->
-            if (!scrolling) follow = bottom else if (!bottom) follow = false
+        snapshotFlow { Triple(listState.isScrollInProgress, atBottom, autoScrolling) }.collect { (scrolling, bottom, auto) ->
+            if (auto) return@collect
+            if (scrolling && !bottom) follow = false
+            else if (!scrolling && bottom) follow = true
         }
     }
     LaunchedEffect(lines.size, follow) {
-        if (lines.isNotEmpty() && follow) listState.scrollToItem(lines.size - 1)
+        if (lines.isNotEmpty() && follow) {
+            autoScrolling = true
+            listState.scrollToItem(lines.size - 1)
+            autoScrolling = false
+        }
     }
 
     fun send(cmd: String) {
@@ -141,6 +153,20 @@ fun ConsoleTab(profile: ServerProfile) {
             Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            AssistChip(
+                enabled = lines.isNotEmpty(),
+                onClick = {
+                    val text = lines.takeLast(400).joinToString("\n") { it.text }
+                    val send = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_SUBJECT, "Console do ${profile.name} (${profile.typeLabel})")
+                        putExtra(Intent.EXTRA_TEXT, text)
+                    }
+                    ctx.startActivity(Intent.createChooser(send, "Compartilhar o console"))
+                },
+                label = { Text("Compartilhar") },
+                leadingIcon = { Icon(Icons.Rounded.Share, null, Modifier.size(18.dp)) },
+            )
             quick.forEach { q ->
                 AssistChip(
                     enabled = canSend,

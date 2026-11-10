@@ -6,6 +6,8 @@ PKG=io.github.pauloestefani.javaworld
 OUT=ci-out
 mkdir -p "$OUT"
 RESULT="$OUT/result.txt"
+TESTS="${TESTS:-all}"
+want() { [ "$TESTS" = all ] || [[ " $TESTS " == *" $1 "* ]]; }
 : > "$RESULT"
 pass() { echo "PASS $*" | tee -a "$RESULT"; }
 fail() { echo "FAIL $*" | tee -a "$RESULT"; }
@@ -55,6 +57,7 @@ sudo TOKEN=citoken BIND_PORT=7000 MC_PORTS=25566 bash tunel/instalar-frps.sh > "
   && pass "script do frps" || fail "script do frps"
 bc --es cmd tunnel --es host 10.0.2.2 --ei port 7000 --es token citoken --ei remote 25566
 
+if want vanilla; then
 # ---------- Vanilla (versão mais nova, Java 25) ----------
 open_route "create"
 sleep 6
@@ -94,6 +97,9 @@ shot 08-lista
 bc --es cmd stop
 if wait_log "status=STOPPED" 120; then pass "vanilla desligou"; else fail "vanilla não desligou"; fi
 
+fi
+
+if want fabric; then
 # ---------- Fabric + mod do Modrinth ----------
 bc --es cmd create --es loader fabric --es mc 1.21.1 --es name "'Mundo Fabric'" --ei ram 1024
 sleep 6
@@ -124,6 +130,9 @@ stopped=$(grep -c "status=STOPPED" "$OUT/logcat.txt")
 bc --es cmd stop
 wait_more "status=STOPPED" "$stopped" 120 && pass "fabric desligou" || fail "fabric não desligou"
 
+fi
+
+if want forge; then
 # ---------- Forge 1.20.1 (Java 17) — só informativo ----------
 bc --es cmd create --es loader forge --es mc 1.20.1 --es name "'Mundo Forge'" --ei ram 1536
 sleep 8
@@ -141,15 +150,16 @@ while [ "$(date +%s)" -lt "$end" ]; do
   sleep 5
 done
 shot 11-forge
-[ $ok = 1 ] && pass "forge ligou" || warn "forge não ligou"
+[ $ok = 1 ] && pass "forge ligou" || { warn "forge não ligou"; bc --es cmd dumplog --ei lines 200; sleep 3; }
 open_route "server/$GID?tab=1"
 sleep 3
 shot 12-forge-console
 stopped=$(grep -c "status=STOPPED" "$OUT/logcat.txt")
 bc --es cmd stop
 wait_more "status=STOPPED" "$stopped" 120 || true
+fi
 
 kill $LOGCAT_PID 2>/dev/null || true
-adb logcat -d -s JavaWorld JavaWorldTest JavaWorldTunnel AndroidRuntime > "$OUT/logcat-app.txt" 2>&1 || true
+adb logcat -d -s JavaWorld JavaWorldTest JavaWorldTunnel JavaWorldConsole AndroidRuntime > "$OUT/logcat-app.txt" 2>&1 || true
 echo "==== RESULTADO ===="
 cat "$RESULT"
