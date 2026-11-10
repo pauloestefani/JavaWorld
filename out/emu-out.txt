@@ -1,0 +1,136 @@
+14
+launcher-x86_64: 1 file pushed, 0 skipped. 64.7 MB/s (7336 bytes in 0.000s)
+frpc: 1 file pushed, 0 skipped. 90.5 MB/s (17461410 bytes in 0.184s)
+### frpc version
+0.72.0
+### JRE 8
+--- jre8 top:
+ASSEMBLY_EXCEPTION
+LICENSE
+THIRD_PARTY_README
+bin
+lib
+man
+release
+amd64
+applet
+calendars.properties
+charsets.jar
+classlist
+jre8/lib/amd64/jvm.cfg
+jre8/lib/amd64/jli/libjli.so
+jre8/lib/amd64/server/libjvm.so
+jre8/: 145 files pushed, 0 skipped. 82.9 MB/s (107361051 bytes in 1.236s)
+env: JAVA_HOME=/data/local/tmp/jre8 JW_LIBJLI=/data/local/tmp/jre8/lib/amd64/jli/libjli.so JW_LIBJVM=/data/local/tmp/jre8/lib/amd64/server/libjvm.so LD_LIBRARY_PATH=/data/local/tmp/jre8/lib/amd64/server:/data/local/tmp/jre8/lib/amd64/jli:/data/local/tmp/jre8/lib/amd64:/system/lib64 HOME=/data/local/tmp/mc TMPDIR=/data/local/tmp/mc/tmp
+OpenJDK 64-Bit Server VM warning: No monotonic clock was available - timed services may be adversely affected if the time-of-day clock changes
+openjdk version "1.8.0_492-internal"
+OpenJDK Runtime Environment (build 1.8.0_492-internal-runner_2026_03_03_11_24-b00)
+OpenJDK 64-Bit Server VM (build 25.492-b00, mixed mode)
+### JRE 17
+--- jre17 top:
+bin
+conf
+legal
+lib
+release
+classlist
+fontconfig.Linux.bfc
+fontconfig.Linux.properties.src
+fontconfig.Mac OS X.bfc
+fontconfig.Mac OS X.properties.src
+jre17/lib/jvm.cfg
+jre17/lib/libjli.so
+jre17/lib/server/libjvm.so
+jre17/: 113 files pushed, 0 skipped. 100.1 MB/s (127161648 bytes in 1.211s)
+env: JAVA_HOME=/data/local/tmp/jre17 JW_LIBJLI=/data/local/tmp/jre17/lib/libjli.so JW_LIBJVM=/data/local/tmp/jre17/lib/server/libjvm.so LD_LIBRARY_PATH=/data/local/tmp/jre17/lib/server:/data/local/tmp/jre17/lib/jli:/data/local/tmp/jre17/lib:/system/lib64 HOME=/data/local/tmp/mc TMPDIR=/data/local/tmp/mc/tmp
+openjdk version "17.0.19-internal" 2026-04-21
+OpenJDK Android Runtime Environment (build 17.0.19-internal+0-adhoc.runner.openjdk-17)
+OpenJDK 64-Bit Server VM (build 17.0.19-internal+0-adhoc.runner.openjdk-17, mixed mode)
+### JRE 21
+--- jre21 top:
+bin
+conf
+legal
+lib
+release
+classlist
+fontconfig.Linux.bfc
+fontconfig.Linux.properties.src
+fontconfig.Mac OS X.bfc
+fontconfig.Mac OS X.properties.src
+jre21/lib/jvm.cfg
+jre21/lib/libjli.so
+jre21/lib/server/libjvm.so
+jre21/: 115 files pushed, 0 skipped. 97.9 MB/s (139867669 bytes in 1.362s)
+env: JAVA_HOME=/data/local/tmp/jre21 JW_LIBJLI=/data/local/tmp/jre21/lib/libjli.so JW_LIBJVM=/data/local/tmp/jre21/lib/server/libjvm.so LD_LIBRARY_PATH=/data/local/tmp/jre21/lib/server:/data/local/tmp/jre21/lib/jli:/data/local/tmp/jre21/lib:/system/lib64 HOME=/data/local/tmp/mc TMPDIR=/data/local/tmp/mc/tmp
+openjdk version "21.0.1-internal" 2023-10-17
+OpenJDK Android Runtime Environment (build 21.0.1-internal-adhoc.runner.openjdk-21)
+OpenJDK 64-Bit Server VM (build 21.0.1-internal-adhoc.runner.openjdk-21, mixed mode)
+### JRE 25
+--- jre25 top:
+bin
+conf
+legal
+lib
+release
+classlist
+ct.sym
+fontconfig.Linux.bfc
+fontconfig.Linux.properties.src
+fontconfig.bfc
+jre25/lib/jvm.cfg
+jre25/lib/libjli.so
+jre25/lib/server/libjvm.so
+jre25/: 132 files pushed, 0 skipped. 89.8 MB/s (167763683 bytes in 1.782s)
+env: JAVA_HOME=/data/local/tmp/jre25 JW_LIBJLI=/data/local/tmp/jre25/lib/libjli.so JW_LIBJVM=/data/local/tmp/jre25/lib/server/libjvm.so LD_LIBRARY_PATH=/data/local/tmp/jre25/lib/server:/data/local/tmp/jre25/lib/jli:/data/local/tmp/jre25/lib:/system/lib64 HOME=/data/local/tmp/mc TMPDIR=/data/local/tmp/mc/tmp
+[launcher] warning: libjvm: dlopen failed: library "libc++_shared.so" not found: needed by /data/local/tmp/jre25/lib/server/libjvm.so in namespace (default)
+[launcher] libjli: dlopen failed: library "libc++_shared.so" not found: needed by /data/local/tmp/jre25/lib/libjli.so in namespace (default)
+### SERVER 1.21.1 on java 21
+server.jar: 1 file pushed, 0 skipped. 177.5 MB/s (51627615 bytes in 0.277s)
+[19:00:36] [Worker-Main-3/INFO]: Preparing spawn area: 18%
+[19:00:37] [Worker-Main-3/INFO]: Preparing spawn area: 18%
+[19:00:37] [Worker-Main-2/INFO]: Preparing spawn area: 18%
+[19:00:38] [Worker-Main-3/INFO]: Preparing spawn area: 18%
+[19:00:38] [Worker-Main-3/INFO]: Preparing spawn area: 34%
+[19:00:39] [Worker-Main-3/INFO]: Preparing spawn area: 51%
+[19:00:39] [Worker-Main-3/INFO]: Preparing spawn area: 51%
+[19:00:40] [Worker-Main-2/INFO]: Preparing spawn area: 51%
+[19:00:40] [Worker-Main-2/INFO]: Preparing spawn area: 51%
+[19:00:41] [Worker-Main-2/INFO]: Preparing spawn area: 51%
+[19:00:41] [Worker-Main-1/INFO]: Preparing spawn area: 51%
+[19:00:42] [Worker-Main-3/INFO]: Preparing spawn area: 77%
+[19:00:42] [Server thread/INFO]: Time elapsed: 10121 ms
+[19:00:42] [Server thread/INFO]: Done (18.583s)! For help, type "help"
+[19:02:56] [Server thread/INFO]: Stopping the server
+[19:02:56] [Server thread/INFO]: Stopping server
+[19:02:56] [Server thread/INFO]: Saving players
+[19:02:56] [Server thread/INFO]: Saving worlds
+[19:02:56] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:overworld
+[19:02:57] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_end
+[19:02:57] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_nether
+[19:02:57] [Server thread/INFO]: ThreadedAnvilChunkStorage (world): All chunks are saved
+[19:02:57] [Server thread/INFO]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[19:02:57] [Server thread/INFO]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+[19:02:57] [Server thread/INFO]: ThreadedAnvilChunkStorage: All dimensions are saved
+elapsed 172s
+banned-ips.json
+banned-players.json
+eula.txt
+libraries
+logs
+ops.json
+server.jar
+server.properties
+tmp
+usercache.json
+versions
+whitelist.json
+world
+### SERVER 26.3 on java 25
+server.jar: 1 file pushed, 0 skipped. 463.5 MB/s (62294556 bytes in 0.128s)
+[launcher] warning: libjvm: dlopen failed: library "libc++_shared.so" not found: needed by /data/local/tmp/jre25/lib/server/libjvm.so in namespace (default)
+[launcher] libjli: dlopen failed: library "libc++_shared.so" not found: needed by /data/local/tmp/jre25/lib/libjli.so in namespace (default)
+elapsed 170s
+eula.txt
+server.jar
+tmp

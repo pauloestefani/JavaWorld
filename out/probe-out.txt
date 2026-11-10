@@ -1,0 +1,109 @@
+### Fabric server jar 26.3: 200
+### Fabric server jar 1.21.1: 200
+[]
+### Forge versions json
+118
+<version>1.21.1-52.1.21</version>
+<version>1.20.6-50.2.15</version>
+<version>1.20.1-47.4.29</version>
+### NeoForge list sample
+21.1.264
+21.1.265
+0.25w14craftmine 20.2 20.3 20.4 20.5 20.6 21.0 21.1 21.10 21.11 21.2 21.3 21.4 21.5 21.6 21.7 21.8 21.9 26.1 26.2 26.3 
+### Modrinth versions sample
+mc26.3-0.26.3-fabric lithium-fabric-0.26.3+mc26.3.jar deps=0
+fabric-api optional https://cdn.modrinth.com/data/P7dR8mSH/icon.png
+cloth-config optional https://cdn.modrinth.com/data/9s6osm5g/ed8a2316cbb6f4fc5f510e8e13a59a85cbbbff4d_96.webp
+ferrite-core optional https://cdn.modrinth.com/data/uXXizFIs/222a126f26f8f9ae1eb339f3b767677f18bff31f_96.webp
+### INSTALL forge 26.3-66.1.5 (200)
+exit=0
+  Output: /home/runner/work/JavaWorld/JavaWorld/inst-forge-26.3-66.1.5/./libraries/net/minecraftforge/forge/26.3-66.1.5/forge-26.3-66.1.5-server.jar Checksum Validated: 20e56e05ae2fc2e7c61e94caaae37d6c5456f47c
+The server installed successfully
+You can delete this installer file now if you wish
+total 8100
+drwxr-xr-x  3 runner runner    4096 Nov 10 18:57 .
+drwxr-xr-x  7 runner runner    4096 Nov 10 18:57 ..
+-rw-r--r--  1 runner runner    2703 Nov 10 18:57 README.txt
+-rw-r--r--  1 runner runner   16193 Nov 10 18:57 forge-26.3-66.1.5-shim.jar
+-rw-r--r--  1 runner runner  120895 Nov 10 18:57 install.log
+-rw-r--r--  1 runner runner 8002049 Nov 10 18:57 installer.jar
+-rw-r--r--  1 runner runner  120895 Nov 10 18:57 installer.jar.log
+drwxr-xr-x 11 runner runner    4096 Nov 10 18:57 libraries
+-rw-r--r--  1 runner runner     545 Nov 10 18:57 run.bat
+-rwxr--r--  1 runner runner     368 Nov 10 18:57 run.sh
+-rw-r--r--  1 runner runner     573 Nov 10 18:57 user_jvm_args.txt
+--- run.sh:
+java -jar forge-26.3-66.1.5-shim.jar --onlyCheckJava || exit 1
+java @user_jvm_args.txt @libraries/net/minecraftforge/forge/26.3-66.1.5/unix_args.txt "$@"
+--- args files:
+./libraries/net/minecraftforge/forge/26.3-66.1.5/win_args.txt
+./libraries/net/minecraftforge/forge/26.3-66.1.5/unix_args.txt
+./user_jvm_args.txt
+-Djava.net.preferIPv6Addresses=system -XX:+UseCompactObjectHeaders -XX:StackShadowPages=32 -jar forge-26.3-66.1.5-shim.jar
+
+./installer.jar
+./forge-26.3-66.1.5-shim.jar
+### INSTALL forge 1.20.1-47.4.0 (200)
+exit=0
+  Patching com/mojang/blaze3d/vertex/VertexFormatElement$Usage$SetupState 1/1
+The server installed successfully
+You can delete this installer file now if you wish
+total 8276
+drwxr-xr-x  3 runner runner    4096 Nov 10 18:58 .
+drwxr-xr-x  8 runner runner    4096 Nov 10 18:57 ..
+-rw-r--r--  1 runner runner 1194742 Nov 10 18:58 install.log
+-rw-r--r--  1 runner runner 6056587 Nov 10 18:58 installer.jar
+-rw-r--r--  1 runner runner 1194742 Nov 10 18:58 installer.jar.log
+drwxr-xr-x 11 runner runner    4096 Nov 10 18:58 libraries
+-rw-r--r--  1 runner runner     373 Nov 10 18:58 run.bat
+-rwxr--r--  1 runner runner     365 Nov 10 18:58 run.sh
+-rw-r--r--  1 runner runner     339 Nov 10 18:58 user_jvm_args.txt
+--- run.sh:
+java @user_jvm_args.txt @libraries/net/minecraftforge/forge/1.20.1-47.4.0/unix_args.txt "$@"
+--- args files:
+./libraries/net/minecraftforge/forge/1.20.1-47.4.0/win_args.txt
+./libraries/net/minecraftforge/forge/1.20.1-47.4.0/unix_args.txt
+./user_jvm_args.txt
+-p libraries/cpw/mods/bootstraplauncher/1.1.2/bootstraplauncher-1.1.2.jar:libraries/cpw/mods/securejarhandler/2.1.10/securejarhandler-2.1.10.jar:libraries/org/ow2/asm/asm-commons/9.7.1/asm-commons-9.7.1.jar:libraries/org/ow2/asm/asm-util/9.7.1/asm-util-9.7.1.jar:libraries/org/ow2/asm/asm-analysis/9.7.1/asm-analysis-9.7.1.jar:libraries/org/ow2/asm/asm-tree/9.7.1/asm-tree-9.7.1.jar:libraries/org/ow2/asm/asm/9.7.1/asm-9.7.1.jar:libraries/net/minecraftforge/JarJarFileSystems/0.3.19/JarJarFileSystems-0.3.19.jar
+--add-modules ALL-MODULE-PATH
+--add-opens java.base/java.util.jar=cpw.mods.securejarhand
+./installer.jar
+### INSTALL forge 1.12.2-14.23.5.2860 (200)
+exit=56
+tail: cannot open 'install.log' for reading: No such file or directory
+total 776
+drwxr-xr-x 2 runner runner   4096 Nov 10 18:58 .
+drwxr-xr-x 9 runner runner   4096 Nov 10 18:58 ..
+-rw-r--r-- 1 runner runner 786432 Nov 10 18:58 installer.jar
+--- run.sh:
+--- args files:
+
+./installer.jar
+### INSTALL neoforge 26.3.0.102 (200)
+exit=0
+overall work [2652ms]
+The server installed successfully
+You can delete this installer file now if you wish
+total 3668
+drwxr-xr-x  3 runner runner    4096 Nov 10 18:58 .
+drwxr-xr-x 10 runner runner    4096 Nov 10 18:58 ..
+-rw-r--r--  1 runner runner   15705 Nov 10 18:58 install.log
+-rw-r--r--  1 runner runner 3695405 Nov 10 18:58 installer.jar
+-rw-r--r--  1 runner runner   15664 Nov 10 18:58 installer.jar.log
+drwxr-xr-x  9 runner runner    4096 Nov 10 18:58 libraries
+-rw-r--r--  1 runner runner     368 Nov 10 18:58 run.bat
+-rwxr--r--  1 runner runner     365 Nov 10 18:58 run.sh
+-rw-r--r--  1 runner runner     339 Nov 10 18:58 user_jvm_args.txt
+--- run.sh:
+exec java @user_jvm_args.txt @libraries/net/neoforged/neoforge/26.3.0.102/unix_args.txt "$@"
+--- args files:
+./libraries/net/neoforged/neoforge/26.3.0.102/win_args.txt
+./libraries/net/neoforged/neoforge/26.3.0.102/unix_args.txt
+./user_jvm_args.txt
+--add-opens java.base/java.lang.invoke=ALL-UNNAMED
+--add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming
+-Djava.net.preferIPv6Addresses=system
+-DlibraryDirectory=libraries
+-classpath
+libraries/net/neoforged/fancymodloader/earlydisplay/12.0.12/earlydisplay-12.0.12.jar:libraries/net/neoforged/fancymodloader/loader/12.0.12/loader-12.0.12.jar:libraries/net/neoforged/accesstransformers/11.0.2/accesstransformers-11.0.2.jar:libraries/org/ow2/asm/asm-commons/9.11/asm-commons-9.11.jar:libraries/net/neoforged/mergetool/2.0.7/mergetool-2.0.7-api.jar:libraries/org/ow2/asm/asm-util/9.11/asm-util-9.11.j
+./installer.jar
