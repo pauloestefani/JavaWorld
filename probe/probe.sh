@@ -1,54 +1,27 @@
 #!/usr/bin/env bash
 set -u
-echo "### SEARCH repos"
-gh api "search/repositories?q=android+openjdk+build&sort=updated&per_page=15" --jq '.items[] | "\(.full_name) stars=\(.stargazers_count) pushed=\(.pushed_at)"' || true
+code() { curl -s -o /dev/null -w "%{http_code}" -L "$1"; }
+echo "### Fabric server jar 26.3: $(code https://meta.fabricmc.net/v2/versions/loader/26.3/0.20.1/1.1.2/server/jar)"
+echo "### Fabric server jar 1.21.1: $(code https://meta.fabricmc.net/v2/versions/loader/1.21.1/0.20.1/1.1.2/server/jar)"
+curl -s "https://meta.fabricmc.net/v2/versions/loader/1.12.2" | head -c 200; echo
+echo "### Forge versions json"
+curl -s https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json | jq -r '.promos | keys | length'
+curl -s https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml | grep -o '<version>[^<]*</version>' | tail -3
+echo "### NeoForge list sample"
+curl -s "https://maven.neoforged.net/api/maven/versions/releases/net/neoforged/neoforge" | jq -r '.versions | map(select(startswith("21.1."))) | .[-2:][]'
+curl -s "https://maven.neoforged.net/api/maven/versions/releases/net/neoforged/neoforge" | jq -r '.versions | map(split(".")[0:2] | join(".")) | unique | .[]' | tr '\n' ' '; echo
+echo "### Modrinth versions sample"
+curl -s -A "pauloestefani/JavaWorld/probe" 'https://api.modrinth.com/v2/project/lithium/version?loaders=%5B%22fabric%22%5D&game_versions=%5B%2226.3%22%5D' | jq -r '.[0] | "\(.version_number) \(.files[0].filename) deps=\(.dependencies|length)"'
+curl -s -A "pauloestefani/JavaWorld/probe" 'https://api.modrinth.com/v2/search?limit=3&index=downloads&facets=%5B%5B%22project_type%3Amod%22%5D%2C%5B%22categories%3Afabric%22%5D%2C%5B%22versions%3A26.3%22%5D%2C%5B%22server_side%3Arequired%22%2C%22server_side%3Aoptional%22%5D%5D' | jq -r '.hits[] | "\(.slug) \(.server_side) \(.icon_url)"'
 
-REPOS="PojavLauncherTeam/android-openjdk-build-multiarch AngelAuraMC/angelauramc-openjdk-build FCL-Team/Android-OpenJDK-Build Vera-Firefly/android-openjdk-autobuild MojoLauncher/android-openjdk-build ShirosakiMio/android-openjdk-build-multiarch"
-: > assets.txt
-for r in $REPOS; do
-  echo "### RELEASES $r"
-  gh api "repos/$r/releases?per_page=8" --jq '.[] | "TAG \(.tag_name) \(.published_at)\n" + ([.assets[] | "  \(.name) \(.size) \(.browser_download_url)"] | join("\n"))' 2>&1 | head -80 | tee -a assets.txt
-  echo "### ARTIFACTS $r"
-  gh api "repos/$r/actions/artifacts?per_page=15" --jq '.artifacts[] | "  \(.name) \(.size_in_bytes) expired=\(.expired) \(.created_at)"' 2>&1 | head -20
+for spec in "forge 26.3-66.1.5 https://maven.minecraftforge.net/net/minecraftforge/forge/26.3-66.1.5/forge-26.3-66.1.5-installer.jar" \
+            "forge 1.20.1-47.4.0 https://maven.minecraftforge.net/net/minecraftforge/forge/1.20.1-47.4.0/forge-1.20.1-47.4.0-installer.jar" \
+            "forge 1.12.2-14.23.5.2860 https://maven.minecraftforge.net/net/minecraftforge/forge/1.12.2-14.23.5.2860/forge-1.12.2-14.23.5.2860-installer.jar" \
+            "neoforge 26.3.0.102 https://maven.neoforged.net/releases/net/neoforged/neoforge/26.3.0.102/neoforge-26.3.0.102-installer.jar"; do
+  set -- $spec
+  d=inst-$1-$2; mkdir -p $d; echo "### INSTALL $1 $2 ($(code $3))"
+  ( cd $d && curl -sL -o installer.jar "$3" && timeout 600 java -jar installer.jar --installServer > install.log 2>&1; echo "exit=$?"; tail -3 install.log
+    ls -la; echo "--- run.sh:"; cat run.sh 2>/dev/null | grep -v '^#' | grep -v '^$'
+    echo "--- args files:"; find . -name '*args*.txt' | head; f=$(find . -name 'unix_args.txt' | head -1); [ -n "$f" ] && head -c 600 "$f"; echo
+    find . -maxdepth 1 -name '*.jar' )
 done
-
-echo "### Pojav assets dir"
-gh api "repos/PojavLauncherTeam/PojavLauncher/contents/app_pojavlauncher/src/main/assets/components" --jq '.[].name' 2>&1 | head
-gh api "repos/PojavLauncherTeam/PojavLauncher/contents/app_pojavlauncher/src/main/assets/components/jre" --jq '.[] | "\(.name) \(.size)"' 2>&1 | head
-echo "### Amethyst tree search for jre"
-gh api "repos/AngelAuraMC/Amethyst-Android/git/trees/HEAD?recursive=1" --jq '.tree[].path' 2>&1 | grep -iE 'jre|openjdk|runtime' | head -40
-echo "### Amethyst gradle refs to jre"
-for f in app_pojavlauncher/build.gradle build.gradle; do gh api "repos/AngelAuraMC/Amethyst-Android/contents/$f" --jq .content 2>/dev/null | base64 -d 2>/dev/null | grep -inE 'jre|openjdk|download' | head -30; done
-echo "### Pojav gradle refs to jre"
-for f in app_pojavlauncher/build.gradle; do gh api "repos/PojavLauncherTeam/PojavLauncher/contents/$f" --jq .content 2>/dev/null | base64 -d 2>/dev/null | grep -inE 'jre|openjdk|download' | head -30; done
-
-echo "### FRP latest"
-gh api repos/fatedier/frp/releases/latest --jq '.tag_name, (.assets[] | select(.name|test("linux_(arm64|amd64)")) | "  \(.name) \(.browser_download_url)")'
-
-echo "### Mojang"
-curl -s https://piston-meta.mojang.com/mc/game/version_manifest_v2.json > manifest.json
-jq -r '.latest' manifest.json
-jq -r '.versions[] | select(.type=="release") | .id' manifest.json | head -15
-for v in $(jq -r '.versions[] | select(.type=="release") | .id' manifest.json | head -4) 1.20.4 1.18.2 1.16.5 1.12.2; do
-  url=$(jq -r --arg v "$v" '.versions[] | select(.id==$v) | .url' manifest.json)
-  curl -s "$url" | jq -r --arg v "$v" '"\($v) java=\(.javaVersion.majorVersion) server=\(.downloads.server.url)"'
-done
-
-echo "### Fabric meta"
-curl -s https://meta.fabricmc.net/v2/versions/loader | jq -r '.[0:3][] | "\(.version) stable=\(.stable)"'
-curl -s https://meta.fabricmc.net/v2/versions/installer | jq -r '.[0:3][] | "\(.version) stable=\(.stable)"'
-curl -s https://meta.fabricmc.net/v2/versions/game | jq -r '[.[] | select(.stable)][0:5][] | .version'
-echo "### Forge promotions"
-curl -s https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json | jq -r '.promos | to_entries | .[-12:][] | "\(.key)=\(.value)"'
-echo "### NeoForge"
-curl -s "https://maven.neoforged.net/api/maven/versions/releases/net/neoforged/neoforge" | jq -r '.versions[-5:][]'
-echo "### Modrinth"
-curl -s -A "javaworld-probe" 'https://api.modrinth.com/v2/search?query=sodium&facets=%5B%5B%22project_type%3Amod%22%5D%5D&limit=2' | jq -r '.hits[] | "\(.slug) \(.title)"'
-echo "### Paper fill v3"
-curl -s https://fill.papermc.io/v3/projects/paper | jq -c '.' | head -c 600; echo
-curl -s https://api.papermc.io/v2/projects/paper | jq -c '.versions[-5:]' 2>/dev/null
-
-echo "### Pick JREs"
-mkdir -p dl
-grep -iE '^  .*(jre|jdk).*(x86_64|amd64)' assets.txt | head -20
-grep -iE '^  .*(jre|jdk).*(arm64|aarch64)' assets.txt | head -20

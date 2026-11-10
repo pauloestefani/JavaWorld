@@ -1,41 +1,52 @@
 #!/usr/bin/env bash
 set -u
+T=/data/local/tmp
 adb shell getprop ro.build.version.release
-adb shell getprop ro.product.cpu.abilist
-for JV in 21 17; do
-  url=$(grep -iE "^  [^ ]*jre-?${JV}[^ ]*(x86_64|amd64)[^ ]* " assets.txt | head -1 | awk '{print $3}')
-  [ -z "$url" ] && url=$(grep -iE "^  [^ ]*(jre|jdk)[^ ]*${JV}[^ ]*(x86_64|amd64)[^ ]* " assets.txt | head -1 | awk '{print $3}')
-  echo "### JRE $JV url=$url"
-  [ -z "$url" ] && continue
-  rm -rf jre$JV && mkdir -p jre$JV && cd jre$JV
-  curl -sL -o pkg "$url"
-  file pkg
-  case "$(file -b pkg)" in
-    *Zip*) unzip -q pkg; rm pkg ;;
-    *XZ*) tar -xJf pkg; rm pkg ;;
-    *gzip*) tar -xzf pkg; rm pkg ;;
-  esac
-  for inner in $(find . -name '*.tar.xz'); do tar -xJf "$inner" && rm "$inner"; done
-  echo "--- tree"; find . -maxdepth 3 | head -60
-  JH=$(dirname "$(dirname "$(find . -path '*/bin/java' | head -1)")")
-  echo "JAVA_HOME candidate: $JH"
-  echo "--- libjvm"; find . -name 'libjvm.so'
-  cd ..
-  [ -z "$JH" ] || [ "$JH" = "." -a ! -f "jre$JV/bin/java" ] && { echo "no bin/java"; continue; }
-  adb shell rm -rf /data/local/tmp/jre$JV
-  adb push "jre$JV/$JH" /data/local/tmp/jre$JV >/dev/null
-  LIBJVM=$(adb shell "find /data/local/tmp/jre$JV -name libjvm.so | head -1" | tr -d '\r')
-  LIBDIR=$(dirname "$LIBJVM")
-  adb shell "chmod -R 755 /data/local/tmp/jre$JV/bin; cd /data/local/tmp/jre$JV && LD_LIBRARY_PATH=/data/local/tmp/jre$JV/lib:$LIBDIR ./bin/java -version" 2>&1
+adb push launcher-x86_64 $T/jwlauncher >/dev/null && adb shell chmod 755 $T/jwlauncher
+adb push frpc $T/frpc >/dev/null && adb shell chmod 755 $T/frpc
+echo "### frpc version"; adb shell $T/frpc -v
+
+prep() { # $1 = java major
+  local JV=$1 tag=download_jre$1
+  rm -rf jre$JV && mkdir -p jre$JV
+  curl -sL "https://github.com/AngelAuraMC/angelauramc-openjdk-build/releases/download/$tag/jre$JV-android-x86_64.tar.xz" | tar -xJ -C jre$JV
+  echo "--- jre$JV top:"; ls jre$JV; ls jre$JV/lib | head -5; find jre$JV -name jvm.cfg; find jre$JV -name libjli.so; find jre$JV -name libjvm.so
+  find jre$JV -type l -delete
+  adb shell rm -rf $T/jre$JV
+  adb push jre$JV $T/ >/dev/null
+}
+envfor() { # prints env assignment for java major $1
+  local JV=$1 H=$T/jre$1
+  local JVM JLI
+  JVM=$(cd jre$JV && find . -name libjvm.so | head -1 | sed 's#^\./##')
+  JLI=$(cd jre$JV && find . -name libjli.so | head -1 | sed 's#^\./##')
+  local JVMDIR LIBDIR
+  JVMDIR=$(dirname "$JVM"); LIBDIR=$(dirname "$JVMDIR")
+  echo "JAVA_HOME=$H JW_LIBJLI=$H/$JLI JW_LIBJVM=$H/$JVM LD_LIBRARY_PATH=$H/$JVMDIR:$H/$LIBDIR/jli:$H/$LIBDIR:/system/lib64 HOME=$T/mc TMPDIR=$T/mc/tmp"
+}
+
+adb shell mkdir -p $T/mc/tmp
+for JV in 8 17 21 25; do
+  echo "### JRE $JV"
+  prep $JV
+  E=$(envfor $JV)
+  echo "env: $E"
+  adb shell "cd $T/mc && $E $T/jwlauncher -version" 2>&1 | tail -5
 done
 
-echo "### Run vanilla server with JRE 21"
-SURL=$(curl -s https://piston-meta.mojang.com/mc/game/version_manifest_v2.json | jq -r '.versions[] | select(.id=="1.21.1") | .url' | xargs curl -s | jq -r .downloads.server.url)
-curl -sL -o server.jar "$SURL"
-adb shell mkdir -p /data/local/tmp/mc
-adb push server.jar /data/local/tmp/mc/server.jar >/dev/null
-adb shell "echo eula=true > /data/local/tmp/mc/eula.txt"
-LIBJVM=$(adb shell "find /data/local/tmp/jre21 -name libjvm.so | head -1" | tr -d '\r')
-LIBDIR=$(dirname "$LIBJVM")
-adb shell "mkdir -p /data/local/tmp/mc/tmp; cd /data/local/tmp/mc && HOME=/data/local/tmp/mc TMPDIR=/data/local/tmp/mc/tmp LD_LIBRARY_PATH=/data/local/tmp/jre21/lib:$LIBDIR timeout 240 /data/local/tmp/jre21/bin/java -Xmx1G -XX:-UsePerfData -Djava.io.tmpdir=/data/local/tmp/mc/tmp -jar server.jar nogui" 2>&1 | tail -60
-adb shell ls -la /data/local/tmp/mc
+runsrv() { # $1 = mc version, $2 = java major
+  local V=$1 JV=$2
+  echo "### SERVER $V on java $JV"
+  local SURL
+  SURL=$(curl -s https://piston-meta.mojang.com/mc/game/version_manifest_v2.json | jq -r --arg v "$V" '.versions[] | select(.id==$v) | .url' | xargs curl -s | jq -r .downloads.server.url)
+  curl -sL -o server.jar "$SURL"
+  adb shell "rm -rf $T/srv$V; mkdir -p $T/srv$V/tmp; echo eula=true > $T/srv$V/eula.txt"
+  adb push server.jar $T/srv$V/server.jar >/dev/null
+  local E; E=$(envfor $JV)
+  local start=$(date +%s)
+  adb shell "cd $T/srv$V && (sleep 170; echo stop) | $E timeout 230 $T/jwlauncher -Xms256M -Xmx1536M -XX:-UsePerfData -XX:ActiveProcessorCount=4 -Djava.io.tmpdir=$T/srv$V/tmp -Duser.home=$T/srv$V -Djava.awt.headless=true -jar server.jar nogui" 2>&1 | tail -25
+  echo "elapsed $(( $(date +%s) - start ))s"
+  adb shell ls $T/srv$V
+}
+runsrv 1.21.1 21
+runsrv 26.3 25

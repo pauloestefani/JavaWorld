@@ -10,27 +10,38 @@ permissions:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 50
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
-      - name: Probe releases and APIs
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - name: Build launcher and fetch frpc
+        run: |
+          set -x
+          NDK=${ANDROID_NDK_LATEST_HOME:-$ANDROID_NDK_HOME}
+          echo "NDK=$NDK"; ls $ANDROID_HOME/ndk || true
+          $NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android26-clang -O2 -o launcher-x86_64 probe/launcher.c -ldl
+          file launcher-x86_64
+          curl -sL https://github.com/fatedier/frp/releases/download/v0.72.0/frp_0.72.0_linux_amd64.tar.gz | tar -xz
+          cp frp_0.72.0_linux_amd64/frpc frpc
+      - name: Probe installers
         run: bash probe/probe.sh 2>&1 | tee probe-out.txt
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-      - name: Run JRE on Android emulator
+      - name: Run on Android emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
           arch: x86_64
           target: google_apis
           disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -memory 4096
-          script: bash probe/emu.sh 2>&1 | tee emu-out.txt || true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -memory 4096 -cores 4
+          script: bash probe/emu.sh > emu-out.txt 2>&1 || true
       - name: Save results
         if: always()
         run: |
