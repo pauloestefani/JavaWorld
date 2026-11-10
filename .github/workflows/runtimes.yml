@@ -1,0 +1,37 @@
+name: Espelhar o Java para Android
+
+# Copia os pacotes do Java (OpenJDK para Android, do projeto angelauramc-openjdk-build)
+# para um Release deste repositório, para o app sempre ter de onde baixar.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/runtimes.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar e publicar
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          mkdir jre && cd jre
+          for v in 8 17 21 25; do
+            for a in arm64 x86_64; do
+              f="jre$v-android-$a.tar.xz"
+              curl -fsSL -o "$f" "https://github.com/AngelAuraMC/angelauramc-openjdk-build/releases/download/download_jre$v/$f"
+              xz -t "$f"
+            done
+          done
+          ls -la
+          gh release view runtimes -R "$REPO" >/dev/null 2>&1 || gh release create runtimes -R "$REPO" \
+            --title "Java para Android (usado pelo app)" --latest=false \
+            --notes "Pacotes do OpenJDK compilados para Android, copiados de https://github.com/AngelAuraMC/angelauramc-openjdk-build (licença GPLv2 com Classpath Exception). O app baixa daqui o Java que cada versão do Minecraft precisa."
+          gh release upload runtimes -R "$REPO" --clobber ./*.tar.xz

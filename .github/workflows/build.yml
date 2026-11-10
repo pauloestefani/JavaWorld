@@ -1,0 +1,129 @@
+name: Gerar APK
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'tunel/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Binários nativos (launcher do Java, frpc)
+        run: bash scripts/prepare-native.sh
+
+      - name: Compilar
+        env:
+          VERSION_CODE: ${{ github.run_number }}
+        run: |
+          set -o pipefail
+          ./gradlew --no-daemon assembleRelease 2>&1 | tee build.log
+
+      - name: Guardar o log do erro
+        if: failure()
+        run: |
+          mkdir -p /tmp/ci && cp build.log /tmp/ci/ 2>/dev/null || true
+          cd /tmp/ci
+          git init -q -b ci-logs
+          git config user.name "ci"
+          git config user.email "ci@users.noreply.github.com"
+          git add -A && git commit -qm "build log ${{ github.run_number }}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ci-logs
+
+      - name: Preparar APK
+        run: |
+          cp app/build/outputs/apk/release/app-release.apk JavaWorld.apk
+          ls -la JavaWorld.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: JavaWorld.apk
+          retention-days: 7
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: apk
+
+      - name: Ativar KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Testar no emulador Android
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_6
+          disk-size: 6000M
+          ram-size: 4096M
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -cores 4
+          script: bash scripts/ci-test.sh
+
+      - name: Guardar resultados
+        if: always()
+        run: |
+          mkdir -p /tmp/res && cp -r ci-out/* /tmp/res/ 2>/dev/null || true
+          cd /tmp/res
+          git init -q -b ci-results
+          git config user.name "ci"
+          git config user.email "ci@users.noreply.github.com"
+          git add -A && git commit -qm "test results ${{ github.run_number }}" || true
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ci-results
+
+      - name: Conferir resultado
+        run: |
+          cat ci-out/result.txt
+          ! grep -q '^FAIL' ci-out/result.txt
+
+  release:
+    needs: [build, test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: apk
+
+      - name: Publicar o APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: JavaWorld 1.0.${{ github.run_number }}
+          make_latest: true
+          files: JavaWorld.apk
+          body: |
+            **Baixar no celular:** toque em `JavaWorld.apk` aqui embaixo.
+
+            Na primeira vez, o Android pede para permitir instalar apps desta fonte. É só permitir.
+            Para atualizar, instale por cima: os seus mundos continuam lá.
