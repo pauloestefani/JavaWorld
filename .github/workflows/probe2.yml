@@ -1,0 +1,21 @@
+name: probe2
+on:
+  push:
+    branches: [probe2]
+permissions:
+  contents: write
+jobs:
+  syms:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Analyze
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash analyze.sh 2>&1 | tee out.txt
+      - name: Save
+        if: always()
+        run: |
+          mkdir -p /tmp/r && cp out.txt /tmp/r/ && cd /tmp/r && git init -q -b probe2-results
+          git config user.name ci && git config user.email ci@users.noreply.github.com
+          git add -A && git commit -qm r && git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" probe2-results
