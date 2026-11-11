@@ -1,0 +1,6 @@
+PASS script do frps
+PASS vanilla 26.3 ligou
+PASS ping pelo túnel
+PASS ping direto
+PASS tátão: servidor anunciado na sala
+PASS vanilla desligou

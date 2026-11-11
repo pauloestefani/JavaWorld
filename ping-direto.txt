@@ -1,0 +1,1 @@
+OK 127.0.0.1:25570 versão=26.3 motd='Teste do JavaWorld' jogadores=0/8

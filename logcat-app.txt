@@ -1,0 +1,30 @@
+--------- beginning of main
+11-11 02:14:13.395  3423  3423 I JavaWorldTest: cmd=tunnel
+11-11 02:14:13.396  3423  3558 I JavaWorldTest: tunnel saved
+11-11 02:14:20.152  3423  3423 I JavaWorldTest: cmd=create
+11-11 02:14:20.153  3423  3558 I JavaWorldTest: created id=1ffafe7258
+11-11 02:14:28.358  3423  3423 I JavaWorldTest: cmd=start
+11-11 02:15:20.189  3423  5147 I JavaWorld: ✔ Minecraft 26.3 baixado
+11-11 02:15:20.190  3423  5147 I JavaWorld: ▶ Ligando Vanilla 26.3 (Java 25, 1280 MB de RAM)
+11-11 02:15:20.191  3423  5147 I JavaWorld: status=STARTING msg=Iniciando o Minecraft…
+11-11 02:15:20.617  3423  3557 I JavaWorldTunnel: 2026-11-11 02:15:20.617 [I] [sub/root.go:194] start frpc service for config file [/data/user/0/io.github.pauloestefani.javaworld/files/tunnel/frpc.toml] with aggregated configuration
+11-11 02:15:20.632  3423  3557 I JavaWorldTunnel: 2026-11-11 02:15:20.631 [I] [client/service.go:369] try to connect to server...
+11-11 02:15:20.807  3423  3557 I JavaWorldTunnel: 2026-11-11 02:15:20.807 [I] [client/service.go:389] [86c52edde1cc5654] login to server success, get run id [86c52edde1cc5654]
+11-11 02:15:20.807  3423  3557 I JavaWorldTunnel: 2026-11-11 02:15:20.807 [I] [proxy/proxy_manager.go:218] [86c52edde1cc5654] proxy added: [javaworld-minecraft]
+11-11 02:15:20.859  3423  3557 I JavaWorldTunnel: 2026-11-11 02:15:20.859 [I] [client/control.go:174] [86c52edde1cc5654] [javaworld-minecraft] start proxy success
+11-11 02:15:56.270  3423  5147 I JavaWorld: status=RUNNING msg=
+11-11 02:15:56.271  3423  5147 I JavaWorld: ✔ Servidor online! Seus amigos já podem entrar.
+11-11 02:16:04.181  3423  3423 I JavaWorldTest: cmd=send
+11-11 02:16:04.182  3423  6480 I JavaWorld: > say Ola do JavaWorld
+11-11 02:16:27.686  3423  3423 I JavaWorldTest: cmd=tatao
+11-11 02:16:35.691  3423  3423 I JavaWorldTatao: tela: [tatao] abrindo microfone e rede
+11-11 02:16:35.721  3423  3423 I JavaWorldTatao: tela: [tatao] tentando abrir como anfitrião salalan-v1-jwci-2976816995
+11-11 02:16:36.158  3423  3423 I JavaWorldTatao: tela: [tatao] virei anfitrião
+11-11 02:16:36.173  3423  6777 I JavaWorldTatao: na sala=true
+11-11 02:16:36.173  3423  6777 I JavaWorldTatao: mundo anunciado na sala porta=25565
+11-11 02:16:37.673  3423  6480 I JavaWorldTatao: mundo anunciado na sala porta=25565
+11-11 02:16:41.673  3423  6480 I JavaWorldTatao: mundo anunciado na sala porta=25565
+11-11 02:16:45.400  3423  3423 I JavaWorldTest: cmd=stop
+11-11 02:16:45.400  3423  6480 I JavaWorld: status=STOPPING msg=Salvando o mundo…
+11-11 02:16:45.908  3423  5147 I JavaWorld: ■ Servidor desligado
+11-11 02:16:45.908  3423  5147 I JavaWorld: status=STOPPED msg=

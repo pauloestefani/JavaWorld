@@ -1,0 +1,15 @@
+==> Baixando o frp 0.72.0 (amd64)
+==> Escrevendo /etc/frp/frps.toml
+==> Criando o serviço frps
+Created symlink '/etc/systemd/system/multi-user.target.wants/frps.service' → '/etc/systemd/system/frps.service'.
+==> Liberando as portas no firewall da máquina
+
+================ JavaWorld ================
+ Túnel instalado e rodando!
+ IP público:      51.8.152.233
+ Porta do túnel:  7000
+ Portas do jogo:  25566
+
+ Lembre de liberar as portas TCP 7000 e 25566 na
+ Security List da rede (VCN) no painel da Oracle.
+===========================================
