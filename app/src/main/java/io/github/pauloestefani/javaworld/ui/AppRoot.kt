@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Dns
+import androidx.compose.material.icons.rounded.Forum
 import androidx.compose.material.icons.rounded.Memory
 import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material3.Icon
@@ -31,12 +32,14 @@ import io.github.pauloestefani.javaworld.ui.screens.DeviceScreen
 import io.github.pauloestefani.javaworld.ui.screens.ModSearchScreen
 import io.github.pauloestefani.javaworld.ui.screens.ServerDetailScreen
 import io.github.pauloestefani.javaworld.ui.screens.ServersScreen
+import io.github.pauloestefani.javaworld.ui.screens.TataoScreen
 import io.github.pauloestefani.javaworld.ui.screens.TunnelScreen
 
 private data class TopItem(val route: String, val label: String, val icon: ImageVector)
 
 private val topItems = listOf(
     TopItem("servers", "Servidores", Icons.Rounded.Dns),
+    TopItem("tatao", "Tátão", Icons.Rounded.Forum),
     TopItem("device", "Celular", Icons.Rounded.Memory),
     TopItem("tunnel", "Túnel", Icons.Rounded.Public),
 )
@@ -87,6 +90,7 @@ fun AppRoot() {
                     onCreate = { nav.navigate("create") },
                 )
             }
+            composable("tatao") { TataoScreen() }
             composable("device") { DeviceScreen() }
             composable("tunnel") { TunnelScreen() }
             composable("create") {

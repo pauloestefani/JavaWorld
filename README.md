@@ -13,6 +13,7 @@ Servidor de **Minecraft Java** rodando direto no celular Android. Sem PC, sem si
 - **Console**: vê o log ao vivo e manda comandos, com atalhos (dar OP, virar dia, etc.).
 - **Ajustes**: modo de jogo, dificuldade, PvP, whitelist, modo original/pirata, distância de visão, RAM.
 - **Mundos**: exporta e importa o mundo em `.zip` (dá pra trazer um mundo do singleplayer).
+- **Tátão**: a aba "Tátão" é o [Tátão](https://github.com/pauloestefani/T-t-o) dentro do app (sala, voz, chat, amigos). Com o servidor ligado e você numa sala, ele aparece sozinho pros amigos que estão na sala pelo Tátão do PC, e a conexão passa pela própria sala. Não precisa de nuvem nem de VPN.
 - **Túnel próprio**: para amigos de fora da sua rede entrarem, usando uma máquina sua grátis na Oracle Cloud em São Paulo. Veja o [guia do túnel](tunel/README.md).
 - Continua rodando com a tela desligada (serviço em primeiro plano).
 

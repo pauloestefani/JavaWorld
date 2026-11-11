@@ -91,6 +91,13 @@ shot 06-celular
 open_route "tunnel"
 sleep 3
 shot 07-tunel
+open_route "tatao"
+sleep 10
+shot 07b-tatao
+bc --es cmd tatao --es room "jwci-$RANDOM$RANDOM"
+if wait_log "mundo anunciado na sala" 60; then pass "tátão: servidor anunciado na sala"; else warn "tátão: não anunciou na sala"; fi
+sleep 3
+shot 07c-tatao-sala
 open_route "servers"
 sleep 3
 shot 08-lista
@@ -160,6 +167,6 @@ wait_more "status=STOPPED" "$stopped" 120 || true
 fi
 
 kill $LOGCAT_PID 2>/dev/null || true
-adb logcat -d -s JavaWorld JavaWorldTest JavaWorldTunnel JavaWorldConsole AndroidRuntime > "$OUT/logcat-app.txt" 2>&1 || true
+adb logcat -d -s JavaWorld JavaWorldTest JavaWorldTunnel JavaWorldTatao JavaWorldConsole AndroidRuntime > "$OUT/logcat-app.txt" 2>&1 || true
 echo "==== RESULTADO ===="
 cat "$RESULT"

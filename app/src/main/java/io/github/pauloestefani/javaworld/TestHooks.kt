@@ -57,6 +57,17 @@ class TestHooks : BroadcastReceiver() {
                         val files = ModManager(app.repo.dir(id)).installFromModrinth(intent.getStringExtra("project").orEmpty(), profile)
                         Log.i(TAG, "mod installed: $files")
                     }
+                    "tatao" -> {
+                        // entra numa sala do Tátão sem abrir a tela (o servidor ligado é anunciado pra sala)
+                        val room = (intent.getStringExtra("room") ?: "jwci").filter { it.isLetterOrDigit() || it == '-' }
+                        app.tatao.runScript("0")
+                        kotlinx.coroutines.delay(8000)
+                        app.tatao.runScript(
+                            "(function(){var n=document.getElementById('name');n.value='CI';n.dispatchEvent(new Event('input'));" +
+                                "document.getElementById('manualJoin').open=true;document.getElementById('room').value='$room';" +
+                                "document.getElementById('joinBtn').click();})()"
+                        )
+                    }
                     "route" -> Nav.request(intent.getStringExtra("route").orEmpty())
                     "dumplog" -> app.servers.log.value.takeLast(intent.getIntExtra("lines", 150)).forEach {
                         Log.i("JavaWorldConsole", it.text)

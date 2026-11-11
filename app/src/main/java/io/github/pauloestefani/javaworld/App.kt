@@ -7,6 +7,7 @@ import android.content.Context
 import io.github.pauloestefani.javaworld.data.ServerRepository
 import io.github.pauloestefani.javaworld.monitor.DeviceMonitor
 import io.github.pauloestefani.javaworld.server.ServerManager
+import io.github.pauloestefani.javaworld.tatao.TataoHost
 import io.github.pauloestefani.javaworld.tunnel.TunnelManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +25,8 @@ class App : Application() {
         private set
     lateinit var monitor: DeviceMonitor
         private set
+    lateinit var tatao: TataoHost
+        private set
 
     val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
@@ -35,6 +38,7 @@ class App : Application() {
         tunnel = TunnelManager(this)
         servers = ServerManager(this)
         monitor = DeviceMonitor(this)
+        tatao = TataoHost(this)
         createChannels()
     }
 
