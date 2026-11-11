@@ -28,11 +28,16 @@ class App : Application() {
     lateinit var tatao: TataoHost
         private set
 
+    /** Por que o app fechou sozinho da última vez (mostrado uma vez ao abrir). */
+    @Volatile var lastExit: String? = null
+
     val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     override fun onCreate() {
         super.onCreate()
         instance = this
+        LastExit.install(this)
+        lastExit = runCatching { LastExit.consume(this) }.getOrNull()
         paths = Paths(this)
         repo = ServerRepository(paths)
         tunnel = TunnelManager(this)

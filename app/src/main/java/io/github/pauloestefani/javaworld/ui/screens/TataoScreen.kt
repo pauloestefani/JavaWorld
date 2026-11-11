@@ -3,6 +3,7 @@ package io.github.pauloestefani.javaworld.ui.screens
 import android.Manifest
 import android.content.pm.PackageManager
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,8 +34,19 @@ fun TataoScreen() {
             .statusBarsPadding()
             .imePadding(),
         factory = { c ->
-            app.tatao.attach(c).apply {
-                layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            try {
+                app.tatao.attach(c).apply {
+                    layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+                }
+            } catch (e: Throwable) {
+                // sem WebView no aparelho (ou erro ao criar): mostra o motivo em vez de fechar o app
+                TextView(c).apply {
+                    text = "Não consegui abrir o Tátão neste aparelho.\n\n${e.javaClass.simpleName}: ${e.message}\n\n" +
+                        android.util.Log.getStackTraceString(e).take(1500)
+                    setTextColor(0xFFE8E0D0.toInt())
+                    setPadding(48, 48, 48, 48)
+                    setTextIsSelectable(true)
+                }
             }
         },
         onRelease = { app.tatao.detach() },

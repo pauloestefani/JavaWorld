@@ -7,7 +7,19 @@ import androidx.compose.material.icons.rounded.Dns
 import androidx.compose.material.icons.rounded.Forum
 import androidx.compose.material.icons.rounded.Memory
 import androidx.compose.material.icons.rounded.Public
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
+import androidx.compose.material3.TextButton
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.unit.dp
+import io.github.pauloestefani.javaworld.App
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -50,6 +62,24 @@ fun AppRoot() {
     val entry by nav.currentBackStackEntryAsState()
     val route = entry?.destination?.route
     val showBar = topItems.any { it.route == route }
+
+    var exitInfo by remember { mutableStateOf(App.instance.lastExit) }
+    exitInfo?.let { info ->
+        val clip = LocalClipboardManager.current
+        AlertDialog(
+            onDismissRequest = { exitInfo = null; App.instance.lastExit = null },
+            title = { Text("O app fechou sozinho da última vez") },
+            text = {
+                Text(
+                    info,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.heightIn(max = 360.dp).verticalScroll(rememberScrollState()),
+                )
+            },
+            confirmButton = { TextButton(onClick = { clip.setText(AnnotatedString(info)) }) { Text("Copiar") } },
+            dismissButton = { TextButton(onClick = { exitInfo = null; App.instance.lastExit = null }) { Text("Fechar") } },
+        )
+    }
 
     LaunchedEffect(Unit) {
         Nav.pending.collect { r ->
